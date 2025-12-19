@@ -5,78 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登入</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/static/style.css">
+
 
     <style>
-                *{
-            font-size: 25px;
-            font-weight: 600;
-            color: rgb(48, 63, 73);
-        }
-        body{
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .navbar{
-            width: calc(100% - 160px);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 80px;
-            background-color: rgb(48, 63, 73);
-            margin-bottom: 100px;
-            
-        }
-        table{
-            width: 70%;
-            box-shadow: 0 0 0 10px rgb(49, 58, 70);
-            border-radius: 15px;
-            background-color: rgb(48, 63, 73);
-        }
-        td{
-            padding: 10px 5px;
-            text-align: center;
-            border: 10px solid rgb(139, 171, 201);
-            font-size: 26px;
-            user-select: none;
-        }
-        .leftnavbar{
-            display: flex;
-            align-items: center;
-        }
-        .navtext{
-            font-size: 40px;
-            color: rgb(216, 220, 223);
-            text-decoration: none;
-            padding: 10px 15px;
-            margin: 0px 5px;
-            font-weight: 300;
-            font-size: 28px;
-            font-weight: 600;
-        }
-        .rightnavbar{
-            display: flex;
-            align-items: center;
-        }
-        .navlink{
-            border-radius: 5px;
-        }
-        .navlink:hover{
-            color: rgb(48, 63, 73);
-            background-color: rgb(211, 220, 226);
-        }
-        button{
-            background-color: rgb(48, 63, 73);
-            border: none;
-            cursor: pointer;
-        }
         .main{
             width: 35%;
             border: 5px solid rgb(48, 63, 73);
@@ -139,7 +71,6 @@
             color: rgb(64, 103, 117);
         }
         .result{
-            color: rgb(196, 82, 29);
             font-size: 28px;
             font-weight: 600;
             margin: 10px auto;
@@ -195,6 +126,7 @@
         </form>
     </div>
 
+
     <script>
         let body = {
             name: "",
@@ -217,16 +149,23 @@
         btn.addEventListener('click',function(e){
             body.name = name.value;
             body.password = password.value;
-            fetch( 'http://localhost:8000/login',{
+            //console.log(JSON.stringify(body));
+            fetch( 'http://127.0.0.1:8000/login',{
                 method: "POST",
                 headers: headers,
                 body: JSON.stringify(body)
             } )
             .then((response) => {
-                console.log(response.json);
+                if(response.status == 401){
+                    result.innerHTML = "名字或密碼錯誤";
+                }
+                return response.json();
+            })
+            .then( (response) => {
+                console.log(response);
             })
             .catch((error) => {
-               console.log("0");
+                console.log(`Error: ${error}`);
             })
         })
     </script>

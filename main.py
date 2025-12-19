@@ -7,12 +7,15 @@ import time  # 用於紀錄 Unix 時間戳
 from datetime import datetime
 import random
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 app = FastAPI()
 
 DB_FILE = 'data.db'
 conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 cursor = conn.cursor()
+
 
 # 1. 建立表格 (Customer, Product & Purchase)
 cursor.execute('''
@@ -78,6 +81,9 @@ class PurchaseRequest(BaseModel):
     count: int        # 購買數量
 
 # --- API 路徑 ---
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 @app.get("/")
 def root():
