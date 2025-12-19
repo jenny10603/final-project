@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from typing import Optional
 import time  # 用於紀錄 Unix 時間戳
 from datetime import datetime
+import random
 
 app = FastAPI()
 
@@ -97,14 +98,44 @@ def get_products():
         "data": [{"id": r[0], "name": r[1], "description": r[2], "seller_id": r[3], "price": r[4]} for r in rows]
     }
 
-# 登入功能
+# 定義一個模型來接收 JSON 資料
+class LoginData(BaseModel):
+    name: str
+    password: int
+
 @app.post("/login")
-def login(name: str, password: int):
-    cursor.execute("SELECT * FROM customer WHERE name = ? AND password = ?", (name, password))
+def login(data: LoginData):
+    # 1. 先驗證帳號密碼
+    cursor.execute(
+        "SELECT id FROM customer WHERE name = ? AND password = ?", 
+        (data.name, data.password)
+    )
     user = cursor.fetchone()
-    if user:
-        return {"message": "登入成功", "key": user[4], "id": user[0]}
-    raise HTTPException(status_code=401, detail="名字或密碼錯誤")
+    
+    if not user:
+        raise HTTPException(status_code=401, detail="名字或密碼錯誤")
+    
+    user_id = user[0]
+
+    # 2. 產生新的隨機 Key (假設是 5 位數的隨機數)
+    new_key = random.randint(10000, 99999)
+
+    try:
+        # 3. 更新資料庫中該使用者的 Key
+        cursor.execute(
+            "UPDATE customer SET key = ? WHERE id = ?", 
+            (new_key, user_id)
+        )
+        conn.commit()  # 記得要 commit 才會儲存變更
+        
+        return {
+            "message": "登入成功，Key 已更新", 
+            "id": user_id,
+            "key": new_key  # 回傳新的 Key 給前端
+        }
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail="更新 Key 時發生錯誤")
 
 # 上架商品
 @app.post("/addProduct")
