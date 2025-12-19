@@ -6,6 +6,7 @@ from typing import Optional
 import time  # 用於紀錄 Unix 時間戳
 from datetime import datetime
 import random
+from fastapi.responses import FileResponse
 
 app = FastAPI()
 
@@ -80,7 +81,7 @@ class PurchaseRequest(BaseModel):
 
 @app.get("/")
 def root():
-    return {"message": "歡迎來到購物系統 API"}
+    return FileResponse('index.html')
 
 @app.get("/getCustomers")
 def get_customers():
