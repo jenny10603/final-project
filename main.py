@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException, status, Depends, Response, Cookie
 from pydantic import BaseModel
 from fastapi.responses import FileResponse
 from jose import JWTError, jwt
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 # 資料庫連線
@@ -55,7 +56,7 @@ conn.commit()
 def init_data():
     cursor.execute("SELECT COUNT(*) FROM customer")
     if cursor.fetchone()[0] == 0:
-        customers = [('老王賣瓜', 1234, 0, 12345), ('小明買家', 321, 1, 67890)]
+        customers = [('admin', 1234, 0, 12345), ('com', 321, 1, 67890)]
         cursor.executemany('INSERT INTO customer (name, password, level, key) VALUES (?,?,?,?)', customers)
     
     cursor.execute("SELECT COUNT(*) FROM product")
@@ -108,7 +109,7 @@ def get_home():
 @app.post("/login")
 def login(data: LoginData):
     try:
-        cursor.execute("SELECT id FROM customer WHERE name = ? AND password = ?", (data.name, data.password))
+        cursor.execute("SELECT id, name, password, level FROM customer WHERE name = ? AND password = ?", (data.name, data.password))
         user = cursor.fetchone()
         
         if not user:
@@ -122,6 +123,7 @@ def login(data: LoginData):
         conn.commit()
         
         return {
+            "level":user[3],
             "sta": 1,
             "message": "登入成功，Key 已更新", 
             "id": user_id,
