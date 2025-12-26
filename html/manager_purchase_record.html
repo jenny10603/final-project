@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>紀錄</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/home.css">
+
+    <style>
+        .box{
+            margin-bottom: 20px;
+        }
+        .main{
+            display: table;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="leftnavbar">
+            <div class="logo navtext">supermarket</div>
+            <a href="./index.php" class="navtext navlink">首頁</a>
+        </div>
+        <div class="rightnavbar">
+        </div>
+    </div>
+    <form class="box" action="./manager.php" method="post">
+        會員帳號:
+        <input type="text" class="search" name="search">
+        <button class="textbtn" type="submit">查詢</button>
+    </form>
+    <table  rules ="all" class="main">
+        <tr class="tr1">
+            <td>商品</td>
+            <td>金額</td>
+            <td>數量</td>
+            <td>總金額</td>
+            <td>時間</td>
+        </tr>
+        <tr>
+            <td>${id}</td>
+            <td>${ele.date}</td>
+            <td>${action}</td>
+            <td>${result}</td>
+            <td>${action}</td>
+        </tr>
+        <tr>
+            <td>${id}</td>
+            <td>${ele.date}</td>
+            <td>${action}</td>
+            <td>${result}</td>
+            <td>${action}</td>
+        </tr>
+        <tr>
+            <td>${id}</td>
+            <td>${ele.date}</td>
+            <td>${action}</td>
+            <td>${result}</td>
+            <td>${action}</td>
+        </tr>
+    </table>
+
+    <script>
+        const main = document.querySelector('.main'); 
+        let action;
+        let result;
+
+        const navrightbar = document.querySelector('.rightnavbar');
+        navrightbar.innerHTML = `            
+        <a class="navtext navlink" href="./manager.php">商品展示</a>
+        <a class="navtext navlink" href="./manager_user.php">會員管理</a>
+        <a class="navtext navlink" href="./record.php">紀錄</a>
+        <a class="out navlink navtext">登出</a>
+        `
+
+        all.forEach(ele => {
+            if (ele.action == 1) {
+                action = '登入';
+            }else{
+                action = '登出';
+            }
+            if (ele.result == 1) {
+                result = '成功';
+            }else{
+                result = '失敗';
+            }
+            id = ele.user_id.padStart(4, '0');
+            main.innerHTML += `
+            <tr>
+                <td>${id}</td>
+                <td>${ele.date}</td>
+                <td>${action}</td>
+                <td>${result}</td>
+            </tr>
+            `
+        });
+    </script>
+</body>
+</html>

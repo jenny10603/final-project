@@ -1,69 +1,84 @@
-        *{
-            font-size: 25px;
-            font-weight: 600;
-            color: rgb(48, 63, 73);
-        }
-        body{
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .navbar{
-            width: calc(100% - 160px);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 80px;
-            background-color: rgb(48, 63, 73);
-            margin-bottom: 100px;
-            
-        }
-        table{
-            width: 70%;
-            box-shadow: 0 0 0 10px rgb(49, 58, 70);
-            border-radius: 15px;
-            background-color: rgb(48, 63, 73);
-        }
-        td{
-            padding: 10px 5px;
-            text-align: center;
-            border: 10px solid rgb(139, 171, 201);
-            font-size: 26px;
-            user-select: none;
-        }
-        .leftnavbar{
-            display: flex;
-            align-items: center;
-        }
-        .navtext{
-            font-size: 40px;
-            color: rgb(216, 220, 223);
-            text-decoration: none;
-            padding: 10px 15px;
-            margin: 0px 5px;
-            font-weight: 300;
-            font-size: 28px;
-            font-weight: 600;
-        }
-        .rightnavbar{
-            display: flex;
-            align-items: center;
-        }
-        .navlink{
-            border-radius: 5px;
-        }
-        .navlink:hover{
-            color: rgb(48, 63, 73);
-            background-color: rgb(211, 220, 226);
-        }
-        button{
-            background-color: rgb(48, 63, 73);
-            border: none;
-            cursor: pointer;
-        }
+*{
+    font-size: 25px;
+    font-weight: 300;
+    color: rgb(48, 63, 73);
+}
+body{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.navbar{
+    width: calc(100% - 160px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 80px;
+    background-color: rgb(48, 63, 73);
+    /* margin-bottom: 100px; */
+    
+}
+table{
+    width: 70%;
+    box-shadow: 0 0 0 5px rgb(49, 58, 70);
+    border-radius: 2px;
+    color: rgb(48, 63, 73);
+}
+.tr1 > td {
+    background-color: rgb(49, 58, 70);
+    color: rgb(216, 220, 223);
+}
+td{
+    padding: 10px 5px;
+    text-align: center;
+    border: 3px solid rgb(48, 63, 73);
+    font-size: 26px;
+    user-select: none;
+}
+.leftnavbar{
+    display: flex;
+    align-items: center;
+}
+.navtext{
+    color: rgb(216, 220, 223);
+    text-decoration: none;
+    padding: 5px 10px;
+    margin: 0px 5px;
+    font-weight: 300;
+    size: 20px;
+}
+.rightnavbar{
+    display: flex;
+    align-items: center;
+}
+.navlink{
+    border-radius: 5px;
+}
+.navlink:hover{
+    color: #303f49;
+    background-color: rgb(211, 220, 226);
+}
+button{
+    border: none;
+    cursor: pointer;
+    width: 90px;
+    height: 40px;
+    /* padding: 10; */
+    background-color: rgb(48, 63, 73);
+    border: 3px solid rgb(48, 63, 73);
+    border-radius: 10px;
+    margin: 0px 10px;
+    font-size: 16px;
+    color: rgb(216, 220, 223);
+}
+button:hover{
+    background-color: rgb(211, 220, 226);
+    border: 3px solid rgb(48, 63, 73);
+    color: rgb(48, 63, 73);
+}

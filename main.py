@@ -60,7 +60,7 @@ def init_data():
     
     cursor.execute("SELECT COUNT(*) FROM product")
     if cursor.fetchone()[0] == 0:
-        products = [('瓜', "老闆這瓜堡熟嗎", 1, 100), ('T91步槍', None, 1, 67890)]
+        products = [('瓜', "老闆這瓜保熟嗎", 1, 100), ('T91步槍', None, 1, 67890)]
         cursor.executemany('INSERT INTO product (name, description, whosProductId, value) VALUES (?,?,?,?)', products)
     conn.commit()
 
@@ -116,11 +116,15 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 def root():
-    return FileResponse('index.html')
+    return FileResponse('html/index.html')
 
 @app.get("/home")
 def get_home():
-    return FileResponse('home.html')
+    return FileResponse('html/home.html')
+
+@app.get("/manager")
+def get_home():
+    return FileResponse('html/manager.html')
 
 @app.post("/login")
 def login(data: LoginData):
@@ -143,6 +147,7 @@ def login(data: LoginData):
     except Exception as e:
         conn.rollback()
         return {"sta": 0, "message": f"伺服器出錯: {str(e)}"}
+
 
 @app.get("/getProducts")
 def get_products(user_id: int = Depends(get_current_user)):

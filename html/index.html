@@ -55,21 +55,6 @@
             margin-top: 20px;
             margin-bottom: 10px;
         }
-        button{
-            width: 90px;
-            height: 40px;
-            padding: 10;
-            background-color: rgb(209, 223, 228);
-            border: 7px ridge rgb(106, 136, 155);
-            border-radius: 10px;
-            margin: 0px 10px;
-            font-size: 16px;
-        }
-        button:hover{
-            background-color: rgba(206, 231, 241, 0.151);
-            border: 7px ridge rgb(111, 132, 156);
-            color: rgb(64, 103, 117);
-        }
         .result{
             font-size: 28px;
             font-weight: 600;
@@ -94,6 +79,7 @@
             display: none;
         }
 
+
     </style>
 </head>
 <body>
@@ -107,7 +93,7 @@
     </div>
     <div class="main">
         <div class="topbar">商品展示系統</div>
-        <form class="content" action="./login" method="post" id="log">
+        <div class="content" action="./login" method="post" id="log">
             <div class="box">
                 <div class="text">帳號</div>
                 <input type="text" class="inputbox" name="account">
@@ -123,7 +109,7 @@
             <div class="btnbox result">
                 
             </div>
-        </form>
+        </div>
     </div>
 
 
@@ -137,13 +123,10 @@
         let name = document.querySelector('input[name="account"]');
         let password = document.querySelector('input[name="password"]');
         let result = document.querySelector('.result');
-        
-        const token = 123;
 
-        let headers = {
+        const headers = {
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "Authorization": `Bearer ${token}`,
         }
 
         console.log(document.cookie);
@@ -165,8 +148,17 @@
                 if(response.sta == 0){
                     result.innerHTML = "名字或密碼錯誤";
                 }else if(response.sta == 1){
+                    sessionStorage.setItem("token", response.token_access);
                     result.innerHTML = "登入成功";
-                    window.location.href = "/home";
+                    
+                    if(response.level == 1){
+                        window.location.replace('/home');
+                    }else if(response.level == 0){
+                        window.location.replace('/manager');
+                    }
+                    let a = sessionStorage.getItem('token');
+                    console.log(a);
+                    
                 }
             })
             .catch((error) => {
