@@ -3,7 +3,7 @@ import time
 import random
 from datetime import datetime, timedelta
 from typing import Optional
-from fastapi import FastAPI, HTTPException, status, Depends, Response, Cookie
+from fastapi import FastAPI, HTTPException, status, Depends, Response, Cookie, Header
 from pydantic import BaseModel
 from fastapi.responses import FileResponse
 from jose import JWTError, jwt
@@ -27,8 +27,7 @@ cursor.execute('''
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         password INTEGER NOT NULL,
-        level INTEGER NOT NULL,
-        key INTEGER NOT NULL
+        level INTEGER NOT NULL
     )
 ''')
 
@@ -56,8 +55,8 @@ conn.commit()
 def init_data():
     cursor.execute("SELECT COUNT(*) FROM customer")
     if cursor.fetchone()[0] == 0:
-        customers = [('admin', 1234, 0, 12345), ('com', 321, 1, 67890)]
-        cursor.executemany('INSERT INTO customer (name, password, level, key) VALUES (?,?,?,?)', customers)
+        customers = [('admin', 1234, 0), ('com', 321, 1)]
+        cursor.executemany('INSERT INTO customer (name, password, level) VALUES (?,?,?)', customers)
     
     cursor.execute("SELECT COUNT(*) FROM product")
     if cursor.fetchone()[0] == 0:
@@ -73,6 +72,27 @@ def create_access_token(data: dict):
     to_encode.update({"exp": expire, "type": "access"})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+
+def get_current_user(authorization: str = Header(None)):
+    # 1. 檢查有沒有 Header
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="未提供認證 Token")
+    
+    # 2. 取得 Token 字串 (去掉 "Bearer " 這七個字)
+    token = authorization.split(" ")[1]
+    
+    try:
+        # 3. 解碼 Token
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: int = payload.get("user_id")
+        
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="無效的 Token")
+        
+        return {"user_id": user_id}
+        
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Token 已過期或無效")
 # --- 2. 資料結構 (Pydantic Models) ---
 
 class LoginData(BaseModel):
@@ -80,15 +100,11 @@ class LoginData(BaseModel):
     password: int
 
 class ProductCreate(BaseModel):
-    user_id: int
-    key: int
     name: str
     description: Optional[str] = None
     price: int
 
 class PurchaseRequest(BaseModel):
-    customer_id: int
-    key: int
     product_id: int
     count: int
 
@@ -116,25 +132,20 @@ def login(data: LoginData):
             # 帳密錯，回傳你指定的 sta: 0
             return {"sta": 0, "message": "名字或密碼錯誤"}
         
-        user_id = user[0]
-        new_key = random.randint(10000, 99999)
-
-        cursor.execute("UPDATE customer SET key = ? WHERE id = ?", (new_key, user_id))
-        conn.commit()
+        access_token = create_access_token(data={"user_id": user[0]})
         
         return {
             "level":user[3],
             "sta": 1,
-            "message": "登入成功，Key 已更新", 
-            "id": user_id,
-            "key": new_key
+            "token_access": access_token, 
+            "id": user[0],
         }
     except Exception as e:
         conn.rollback()
         return {"sta": 0, "message": f"伺服器出錯: {str(e)}"}
 
 @app.get("/getProducts")
-def get_products():
+def get_products(user_id: int = Depends(get_current_user)):
     cursor.execute("SELECT id, name, description, whosProductId, value FROM product")
     rows = cursor.fetchall()
     return {
@@ -143,38 +154,42 @@ def get_products():
     }
 
 @app.post("/buyProduct")
-def buy_product(req: PurchaseRequest):
-    # 驗證買家
-    cursor.execute("SELECT id FROM customer WHERE id = ? AND key = ?", (req.customer_id, req.key))
-    if not cursor.fetchone():
-        raise HTTPException(status_code=401, detail="身分驗證失敗")
-
-    # 檢查商品
+def buy_product(
+    req: PurchaseRequest, 
+    user_id: int = Depends(get_current_user) # 關鍵：這行會自動執行上面的驗證
+):
+    # 此時，user_id 是從 Token 裡面「解密」出來的，絕對安全！
+    
+    # 檢查商品是否存在
     cursor.execute("SELECT name FROM product WHERE id = ?", (req.product_id,))
     product = cursor.fetchone()
     if not product:
-        raise HTTPException(status_code=404, detail="找不到該商品")
+        raise HTTPException(status_code=404, detail="商品不存在")
 
     try:
+        # 寫入購買紀錄
+        real_user_id = user_id["user_id"]
         current_time = int(time.time())
         cursor.execute('''
             INSERT INTO purchase (customerId, productId, time, count) 
             VALUES (?, ?, ?, ?)
-        ''', (req.customer_id, req.product_id, current_time, req.count))
+        ''', (real_user_id, req.product_id, current_time, req.count))
+        
         conn.commit()
         
         return {
-            "status": "success",
             "sta": 1,
-            "message": f"成功購買 {req.count} 個 {product[0]}",
-            "time": datetime.fromtimestamp(current_time).strftime('%Y-%m-%d %H:%M:%S')
+            "message": f"購買成功：{product[0]} x {req.count}",
+            "user_id": user_id  # 可以回傳確認是誰買的
         }
     except Exception as e:
         conn.rollback()
-        return {"sta": 0, "message": str(e)}
-
+        return {"sta": 0, "message": f"資料庫寫入失敗: {str(e)}"}
+    
 @app.get("/getPurchaseHistory")
-def get_purchase_history():
+def get_purchase_history(
+    user_id: int = Depends(get_current_user) # 關鍵：這行會自動執行上面的驗證
+):
     cursor.execute('''
         SELECT p.id, c.name, pr.name, p.count, p.time 
         FROM purchase p
@@ -188,3 +203,33 @@ def get_purchase_history():
             for r in rows
         ]
     }
+
+@app.post("/addProduct")
+def add_product(
+    item: ProductCreate, 
+    user_data: dict = Depends(get_current_user)  # 關鍵：驗證身分並取得 Token 內容
+):
+    # 從 Token 資料中取出 user_id
+    seller_id = user_data["user_id"]
+    
+    #"權限不足，您不是賣家"
+    if user_data.get("level") != 0:
+        raise HTTPException(status_code=403, detail=user_data.get("level"))
+
+    try:
+        # 將商品資訊寫入資料庫
+        cursor.execute('''
+            INSERT INTO product (name, description, whosProductId, value) 
+            VALUES (?, ?, ?, ?)
+        ''', (item.name, item.description, seller_id, item.price))
+        
+        conn.commit()
+        
+        return {
+            "sta": 1, 
+            "message": f"商品 '{item.name}' 上架成功！",
+            "seller_id": seller_id
+        }
+    except Exception as e:
+        conn.rollback()
+        return {"sta": 0, "message": f"上架失敗: {str(e)}"}
