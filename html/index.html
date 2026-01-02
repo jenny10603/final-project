@@ -103,17 +103,42 @@
                 <input type="text" class="inputbox" name="password">
             </div>
             <div class="box btnbox">
+                <button type="button" class="register">註冊</button>   
                 <button type="reset" class="reset">清除</button>
-                <button type="button" class="login">登入</button>                
+                <button type="button" class="login">登入</button>   
+                <div class="box btnbox">
+                <button type="button" onclick="loginWithGoogle()" style="background-color: #4285F4; color: white;">
+                    使用 Google 登入
+                </button>
+    </div>             
             </div>
             <div class="btnbox result">
                 
             </div>
         </div>
     </div>
-
+    
 
     <script>
+
+        window.onload = function() {
+            // 1. 取得網址上的參數
+            const urlParams = new URLSearchParams(window.location.search);
+            const googleToken = urlParams.get('token');
+
+            // 2. 如果網址裡有 token，代表剛從 Google 登入回來
+            if (googleToken) {
+                console.log("偵測到 Google Token:", googleToken);
+                
+                // 存入 sessionStorage (確保名稱跟原本登入邏輯一致)
+                sessionStorage.setItem("token", googleToken);
+                
+                // 存完後，為了安全與美觀，把網址上的 token 清掉並跳轉到 home
+                // 你可以根據 token 內容解析 level，或者直接先跳 home
+                alert("Google 登入成功！");
+                window.location.replace('/home'); 
+            }
+        }
         let body = {
             name: "",
             password: ""
@@ -151,13 +176,16 @@
                     sessionStorage.setItem("token", response.token_access);
                     result.innerHTML = "登入成功";
                     
+                    let a = sessionStorage.getItem('token');
+                    console.log(a);
+
                     if(response.level == 1){
                         window.location.replace('/home');
                     }else if(response.level == 0){
                         window.location.replace('/manager');
                     }
-                    let a = sessionStorage.getItem('token');
-                    console.log(a);
+                    
+                    
                     
                 }
             })
@@ -165,6 +193,63 @@
                 console.log(`Error: ${error}`);
             })
         })
+
+        let registerBtn = document.querySelector('.register');
+
+        registerBtn.addEventListener('click', function(e) {
+            // 抓取目前的輸入值
+            body.name = name.value;
+            body.password = password.value;
+
+            // 簡單的欄位檢查
+            if (!body.name || !body.password) {
+                result.innerHTML = "請輸入帳號與密碼";
+                return;
+            }
+
+            fetch('http://127.0.0.1:8000/register', {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify(body)
+            })
+            .then((response) => response.json())
+            .then((response) => {
+                console.log(response);
+                if (response.sta == 0) {
+                    result.innerHTML = response.message; // 顯示「帳號已存在」或錯誤訊息
+                } else if (response.sta == 1) {
+                    result.innerHTML = "註冊成功！請直接登入";
+                    result.style.color = "green";
+                    // 註冊成功後清空密碼欄位，讓使用者可以直接按登入
+                    password.value = "";
+                }
+            })
+            .catch((error) => {
+                console.log(`Error: ${error}`);
+                result.innerHTML = "連線失敗";
+            });
+        });
+
+        document.querySelector('.reset').addEventListener('click', () => {
+            name.value = "";
+            password.value = "";
+            result.innerHTML = "";
+        });
+
+        function loginWithGoogle() {
+            // 直接跳轉到後端的 Google 登入路由
+            window.location.href = "http://127.0.0.1:8000/login/google";
+        }
+
+        // 在頁面載入時檢查 URL 是否有帶 Token (從 Google 回跳時)
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            if (token) {
+                sessionStorage.setItem("token", token);
+                window.location.replace('/home');
+            }
+        }
     </script>
 </body>
 </html>

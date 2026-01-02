@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>會員管理</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/home.css">
+    <style>
+        .main { display: table; width: 80%; margin: 20px auto; border-collapse: collapse; }
+        td, th { padding: 10px; border: 1px solid #ccc; text-align: center; }
+        .del_btn { background: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    
+    <div class="navbar">
+        <div class="leftnavbar">
+            <div class="logo navtext">supermarket</div>
+            <a href="./manager" class="navtext navlink">回管理首頁</a>
+        </div>
+    </div>
+
+    <table class="main" id="userTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>使用者名稱</th>
+                <th>等級 (0:管理員 1:會員)</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="userList">
+            </tbody>
+    </table>
+
+    <script>
+        const token = sessionStorage.getItem('token_access') || sessionStorage.getItem('token'); 
+        const userList = document.querySelector('#userList');
+
+        console.log("目前的 Token:", token); 
+
+        if (!token) {
+            alert("請先登入！");
+            window.location.replace('/');
+        }
+
+
+        // 1. 抓取會員清單
+        fetch('http://127.0.0.1:8000/getCustomers', {
+            headers: { "Authorization": `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(response => {
+            if (response.sta === 1) {
+                response.data.forEach(user => {
+                    userList.innerHTML += `
+                        <tr>
+                            <td>${user.id}</td>
+                            <td>${user.name}</td>
+                            <td>${user.level}</td>
+                            <td>
+                                <button class="del_btn" onclick="deleteUser(${user.id})">刪除</button>
+                            </td>
+                        </tr>`;
+                });
+            }
+        });
+
+        // 2. 刪除會員函式
+        async function deleteUser(id) {
+            if (!confirm("確定要刪除這位會員嗎？此動作無法復原！")) return;
+
+            const res = await fetch(`http://127.0.0.1:8000/deleteCustomer/${id}`, {
+                method: "DELETE",
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            const result = await res.json();
+            alert(result.message);
+            if (result.sta === 1) location.reload();
+        }
+    </script>
+</body>
+</html>

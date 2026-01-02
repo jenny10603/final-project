@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/home.css">
+</head>
+<body>
+    <div class="main"></div>
+    
+    <script>
+    const main = document.querySelector('.main');
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id');
+
+    let token = sessionStorage.getItem('token');
+
+    const headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": `Bearer ${token}`,
+    }
+
+    fetch('http://127.0.0.1:8000/getProducts', {
+        method: "GET",
+        headers: headers
+    })
+    .then(response => response.json())
+    .then(response => {
+        response.data.forEach(thing => {
+            if (thing.id == productId) {
+                main.innerHTML += `
+                    <div class="product_box">
+                        <div class="thing name_box">${thing.name}</div>
+                        <img class="thing img_box" src="${thing.image_url}" alt="商品圖片">
+                        <div class="thing cost_box">$${thing.price}</div>
+                        <div class="thing text">${thing.description}</div>
+                    </div>
+                    <input type="number" id="buyCount" value="1" min="1">
+                    <button class="btn">確認購買</button>`;
+            }
+        });
+
+        // --- 關鍵：按鈕生成後才綁定監聽器 ---
+        const btn = document.querySelector(".btn");
+        if (btn) {
+            btn.addEventListener('click', async () => {
+                const countInput = document.querySelector("#buyCount");
+                const count = parseInt(countInput.value);
+
+                if (isNaN(count) || count <= 0) {
+                    alert("請輸入正確的數量");
+                    return;
+                }
+
+                // 準備傳送給後端的資料
+                const body = {
+                    product_id: parseInt(productId),
+                    count: count
+                };
+
+                try {
+                    const res = await fetch('http://127.0.0.1:8000/buyProduct', {
+                        method: "POST",
+                        headers: headers,
+                        body: JSON.stringify(body)
+                    });
+                    const result = await res.json();
+
+                    if (result.sta === 1) {
+                        alert(result.message);
+                        window.location.href = './home'; // 購買成功回首頁
+                    } else {
+                        alert("購買失敗：" + result.message);
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert("網路連線錯誤");
+                }
+            });
+        }
+    })
+    .catch(error => console.log(`Error: ${error}`));
+</script>
+</body>
+</html>

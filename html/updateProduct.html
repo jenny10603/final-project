@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>編輯商品</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="main">
+        <h2>編輯商品</h2>
+        <input type="text" id="name" placeholder="商品名稱"><br>
+        <textarea id="description" placeholder="商品描述"></textarea><br>
+        <input type="number" id="price" placeholder="價格"><br>
+        <input type="text" id="image_url" placeholder="圖片網址"><br>
+        <button id="saveBtn">儲存修改</button>
+        <button onclick="history.back()">取消</button>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+        const token = sessionStorage.getItem('token');
+
+        // 1. 載入原始資料
+        fetch('http://127.0.0.1:8000/getProducts', {
+            headers: { "Authorization": `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(response => {
+            const product = response.data.find(p => p.id == productId);
+            if (product) {
+                document.getElementById('name').value = product.name;
+                document.getElementById('description').value = product.description;
+                document.getElementById('price').value = product.price;
+                document.getElementById('image_url').value = product.image_url;
+            }
+        });
+
+        // 2. 儲存修改
+        document.getElementById('saveBtn').onclick = async () => {
+            const updatedData = {
+                name: document.getElementById('name').value,
+                description: document.getElementById('description').value,
+                price: parseInt(document.getElementById('price').value),
+                image_url: document.getElementById('image_url').value
+            };
+
+            const res = await fetch(`http://127.0.0.1:8000/updateProduct/${productId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(updatedData)
+            });
+
+            const result = await res.json();
+            if (result.sta === 1) {
+                alert("修改成功！");
+                window.location.href = "./manager";
+            } else {
+                alert("修改失敗：" + result.message);
+            }
+        };
+    </script>
+</body>
+</html>

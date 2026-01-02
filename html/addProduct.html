@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <input type="text" name="name">
+    <input type="text" name="description">
+    <input type="text" name="price">
+    <input type="file" id="img" name="img">
+    <button class="btn">送出</button>
+    
+</body>
+<script>
+    let btn = document.querySelector(".btn");
+    let nameInput = document.querySelector('input[name="name"]');
+    let descriptionInput = document.querySelector('input[name="description"]');
+    let priceInput = document.querySelector('input[name="price"]');
+    let imgInput = document.querySelector('#img'); // 這裡先選取 input 元素本身
+    
+    let token = sessionStorage.getItem('token');
+
+    btn.addEventListener('click', function(e) {
+        // 1. 先確認有沒有選檔案
+        if (imgInput.files.length === 0) {
+            alert("請選擇圖片！");
+            return;
+        }
+
+        const file = imgInput.files[0];
+        const reader = new FileReader();
+
+        // 2. 定義「當檔案讀取完成後」要做的事情
+        reader.onload = function() {
+            // 讀取完後的結果會存在 reader.result
+            const base64Image = reader.result; 
+
+            const body = {
+                name: nameInput.value,
+                description: descriptionInput.value,
+                price: parseInt(priceInput.value),
+                image_url: base64Image // 這是轉成字串後的圖片
+            };
+
+            // 3. 在 onload 裡面發送 fetch
+            fetch('http://127.0.0.1:8000/addProduct', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+                body: JSON.stringify(body)
+            })
+            .then(response => response.json())
+            .then(response => {
+                console.log(response);
+                if(response.sta == 1) {
+                    window.location.replace('/manager');
+                } else {
+                    alert("失敗：" + response.message);
+                }
+            })
+            .catch(error => console.log(`Error: ${error}`));
+        };
+
+        // 4. 正式開始讀取檔案 (這會觸發上面的 onload)
+        reader.readAsDataURL(file);
+    });
+</script>
+</html>

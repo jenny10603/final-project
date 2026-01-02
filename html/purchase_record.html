@@ -7,93 +7,104 @@
     <title>紀錄</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="/static/home.css">
-
     <style>
-        .navbar{
-            margin-bottom: 50px;
-        }
-        .main{
-            display: table;
-        }
+        .navbar { margin-bottom: 50px; }
+        .main { display: table; width: 100%; border-collapse: collapse; }
+        .main td { padding: 8px; text-align: center; }
     </style>
 </head>
 <body>
     <div class="navbar">
         <div class="leftnavbar">
             <div class="logo navtext">supermarket</div>
-            <a href="./index.php" class="navtext navlink">首頁</a>
+            <a href="./home" class="navtext navlink" id="homeLink">首頁</a>
         </div>
         <div class="rightnavbar">
+            <button class="out navlink navtext" id="logoutBtn">登出</button>
         </div>
     </div>
-    <table  rules ="all" class="main">
+
+    <table rules="all" class="main" id="recordTable">
         <tr class="tr1">
-            <td>帳號</td>
-            <td>商品</td>
-            <td>金額</td>
-            <td>數量</td>
-            <td>總金額</td>
-            <td>時間</td>
-        </tr>
-        <tr>
-            <td>${id}</td>
-            <td>${ele.date}</td>
-            <td>${action}</td>
-            <td>${result}</td>
-            <td>${action}</td>
-            <td>${result}</td>
-        </tr>
-        <tr>
-            <td>${id}</td>
-            <td>${ele.date}</td>
-            <td>${action}</td>
-            <td>${result}</td>
-            <td>${action}</td>
-            <td>${result}</td>
-        </tr>
-        <tr>
-            <td>${id}</td>
-            <td>${ele.date}</td>
-            <td>${action}</td>
-            <td>${result}</td>
-            <td>${action}</td>
-            <td>${result}</td>
+            <td colspan="6">載入中...</td>
         </tr>
     </table>
 
     <script>
-        const main = document.querySelector('.main'); 
-        let action;
-        let result;
+        const main = document.querySelector('#recordTable');
+        const token = sessionStorage.getItem('token');
+        const homeLink = document.querySelector('#homeLink');
 
-        const navrightbar = document.querySelector('.rightnavbar');
-        navrightbar.innerHTML = `            
-        <a class="navtext navlink" href="./manager.php">商品展示</a>
-        <a class="navtext navlink" href="./manager_user.php">會員管理</a>
-        <a class="navtext navlink" href="./record.php">紀錄</a>
-        <a class="out navlink navtext">登出</a>
-        `
+        // 檢查 Token 是否存在
+        if (!token) {
+            window.location.replace('/');
+        } else {
+            // 修正 1 & 2: 統一使用 token 變數並解碼判斷首頁路徑
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                if (payload.level === 0) {
+                    homeLink.href = "./manager"; 
+                } else {
+                    homeLink.href = "./home";
+                }
+            } catch (e) {
+                console.error("Token 解析失敗");
+            }
+        }
 
-        all.forEach(ele => {
-            if (ele.action == 1) {
-                action = '登入';
-            }else{
-                action = '登出';
+        // 解析時間戳記的函式
+        const formatTime = (ts) => new Date(ts * 1000).toLocaleString();
+
+        // 抓取紀錄
+        fetch('http://127.0.0.1:8000/getPurchaseHistory', {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(response => {
+            const level = response.level;
+            const allData = response.data;
+
+            // 1. 生成表頭
+            let tableContent = `
+                <tr class="tr1">
+                    ${level === 0 ? '<td>帳號</td>' : ''}
+                    <td>商品</td>
+                    <td>單價</td>
+                    <td>數量</td>
+                    <td>總金額</td>
+                    <td>時間</td>
+                </tr>`;
+
+            // 2. 渲染資料內容
+            if (allData.length === 0) {
+                tableContent += `<tr><td colspan="6">目前沒有紀錄</td></tr>`;
+            } else {
+                allData.forEach(ele => {
+                    const totalPrice = ele.price * ele.count;
+                    const timeStr = formatTime(ele.time);
+                    tableContent += `
+                        <tr>
+                            ${level === 0 ? `<td>${ele.user_name}</td>` : ''}
+                            <td>${ele.product}</td>
+                            <td>$${ele.price}</td>
+                            <td>${ele.count}</td>
+                            <td>$${totalPrice}</td>
+                            <td>${timeStr}</td>
+                        </tr>`;
+                });
             }
-            if (ele.result == 1) {
-                result = '成功';
-            }else{
-                result = '失敗';
-            }
-            id = ele.user_id.padStart(4, '0');
-            main.innerHTML += `
-                <tr>
-                    <td>${id}</td>
-                    <td>${ele.date}</td>
-                    <td>${action}</td>
-                    <td>${result}</td>
-                </tr>
-            `
+            main.innerHTML = tableContent;
+        })
+        .catch(err => {
+            console.error("Error:", err);
+            main.innerHTML = `<tr><td colspan="6">無法取得紀錄，請重新登入</td></tr>`;
+        });
+
+        // 登出功能
+        document.querySelector('#logoutBtn').addEventListener('click', () => {
+            sessionStorage.removeItem('token');
+            window.location.replace('/');
         });
     </script>
 </body>

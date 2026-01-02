@@ -9,7 +9,11 @@
     <link rel="stylesheet" href="/static/home.css">
 
     <style>
-        
+        .product_box:hover{
+            width: 31%;
+            height: 310px;
+
+        }
     </style>
 </head>
 <body>
@@ -19,18 +23,11 @@
             <a href="./home" class="navtext navlink">首頁</a>
         </div>
         <div class="rightnavbar">
-            <a class="navtext navlink" href="">購買紀錄</a>
+            <a class="navtext navlink" href="./purchase_record.html">購買紀錄</a>
             <button class="out navlink navtext">登出</button>
         </div>
     </div>
-
-    <div class="box" action="./manager.php" method="post">
-        價錢:
-        <input type="number" class="cost" name="cost1"> ~
-        <input type="number" class="cost" name="cost2">元
-        <input type="text" class="search" name="search">
-        <button class="textbtn" type="submit">查詢</button>
-    </div>
+    
     <div class="main">
     </div>
 
@@ -64,11 +61,13 @@
 
             response.data.forEach(thing => {
                 main.innerHTML += `
-                <div class="product_box">
+                <div class="product_box" >
+                    <div class="proID" style="display: none;">${thing.id}</div>
                     <div class="thing name_box">${thing.name}</div>
-                    <img class="thing img_box" src="" alt="">
+                    <img class="thing img_box" src="${thing.image_url}" alt="">
                     <div class="thing cost_box">$${thing.price}</div>
                     <div class="thing text">${thing.description}</div>
+                    
                 </div>`                
             });
         })
@@ -81,6 +80,23 @@
             sessionStorage.removeItem("token");
             window.location.replace('/');
         })
+
+    main.addEventListener('click', function(e) {
+    // 檢查點擊的目標是否為 product_box 或是其子元素
+    const box = e.target.closest('.product_box');
+    
+    if (box) {
+        const productId = box.querySelector('.proID').innerText; 
+        const name = box.querySelector('.name_box').innerText;
+
+        // 2. 詢問使用者
+        const goBuy = confirm(`你選擇了「${name}」，要前往購買頁面嗎？`);
+
+        if (goBuy) {
+            window.location.href = `./buy.html?id=${productId}`;
+        }
+    }
+});
     </script>
 </body>
 </html>
