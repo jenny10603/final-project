@@ -8,25 +8,18 @@
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="/static/home.css">
 
-    <style>
-        .product_box:hover{
-            width: 31%;
-            height: 310px;
-        }
 
-    </style>
 </head>
 <body>
     <div class="navbar">
         <div class="leftnavbar">
             <div class="logo navtext">supermarket</div>
-            <a href="./index.php" class="navtext navlink">首頁</a>
+            <a href="./home" class="navtext navlink">首頁</a>
         </div>
         <div class="rightnavbar">
             <a class="product_create navlink navtext" href="./addProduct.html">上架商品</a>
             <a class="navtext navlink" href="./manager_user.html">會員管理</a>
             <a class="navtext navlink" href="./purchase_record.html">購買紀錄</a>
-            <!-- <a class="navtext navlink" href="./member_record.php">會員紀錄</a> -->
             <a class="out navlink navtext" href="./logout">登出</a>
         </div>
     </div>
@@ -35,15 +28,6 @@
     </div>
 
     <script>
-        // const navrightbar = document.querySelector('.rightnavbar');
-        // navrightbar.innerHTML = `
-        // <a class="navtext navlink" href="./create_type.php">新增版型</a>
-        // <a class="product_create navlink navtext">上架商品</a>
-        // <a class="navtext navlink" href="./manager_user.php">會員管理</a>
-        // <a class="navtext navlink" href="./record.php">購買紀錄</a>
-        // <a class="out navlink navtext">登出</a>
-        // ` 
-
         const main = document.querySelector('.main');
 
         let token = sessionStorage.getItem('token');
@@ -73,8 +57,10 @@
                     <img class="thing img_box" src="${thing.image_url}" alt="商品圖片">
                     <div class="thing cost_box">$${thing.price}</div>
                     <div class="thing text">${thing.description}</div>
-                    <button class="update_btn" onclick="goToUpdate(${thing.id})">編輯</button>
-                    <button class="delete_btn" onclick="deleteItem(${thing.id})" name="id" type="submit">X</button>
+                    <button class="product_btn delete_btn" onclick="deleteItem(${thing.id})" name="id" type="submit">X</button>
+                    <div class="buybox">
+                    <button class="product_btn update_btn" onclick="goToUpdate(${thing.id})">編輯</button>
+                    </div>
                 </div>`                
             });
         })

@@ -9,7 +9,20 @@
     <link rel="stylesheet" href="/static/home.css">
 
     <style>
-
+        .number::-webkit-inner-spin-button,
+        .number::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+        }
+        .number{
+            width: 60px;
+            height: 30px;
+            /* text-align: center; */
+            border-radius: 5px;
+            border: 2px solid rgb(48, 63, 73);
+            text-align: end;
+            -moz-appearance: textfield;
+        }
     </style>
 </head>
 <body>
@@ -25,14 +38,10 @@
     </div>
     
     <div class="main">
+
     </div>
 
     <script>
-        // const navrightbar = document.querySelector('.rightnavbar');
-        // navrightbar.innerHTML = `
-        // <a class="navtext navlink" href="./record.php">購買紀錄</a>
-        // <a class="out navlink navtext href="./user.php">登出</a>
-        // ` 
         let token = sessionStorage.getItem('token');
         console.log(token);
 
@@ -62,31 +71,78 @@
                     <img class="thing img_box" src="${thing.image_url}" alt="">
                     <div class="thing cost_box">$${thing.price}</div>
                     <div class="thing text">${thing.description}</div>
-                    
+                    <div class="buybox">
+                        <button class="product_btn small_btn add">+</button>
+                        <input class="number" type="number" name="${thing.id}" value="0" min="0">
+                        <button class="product_btn small_btn sub">-</button>
+                        <button class="product_btn buy" onclick="">購買</button>
+                    </div>
                 </div>`                
             });
+            const input = document.querySelectorAll('.number');
+            const add = document.querySelectorAll('.add');
+            const sub = document.querySelectorAll('.sub');
+            const buy = document.querySelectorAll('.buy');
+            const proID = document.querySelectorAll('.proID')
+
+            console.log(add);
+    
+            add.forEach(function(e,i){
+                e.addEventListener('click', function(e){
+                    input[i].value++;
+                })
+            })
+            sub.forEach(function(e,i){
+                e.addEventListener('click', function(e){
+                    if (input[i].value > 0) {
+                        input[i].value--;
+                    }else{
+                        confirm(`商品數量不能為0`)
+                    }
+                    
+                })
+            })
+
+            buy.forEach(function(e,i){
+                e.addEventListener('click',async function(e){
+                    const count = input[i].value;
+
+                    if (isNaN(count) || count <= 0) {
+                        alert("請輸入正確的數量");
+                        return;
+                    }
+
+                    // 準備傳送給後端的資料
+                    const body = {
+                        product_id: proID[i].innerText,
+                        count: count
+                    };
+                    
+                    try {
+                        const res = await fetch('http://127.0.0.1:8000/buyProduct', {
+                            method: "POST",
+                            headers: headers,
+                            body: JSON.stringify(body)
+                        });
+                        const result = await res.json();
+
+                        if (result.sta === 1) {
+                            alert(result.message);
+                        } else {
+                            alert("購買失敗：" + result.message);
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        alert("網路連線錯誤");
+                    }
+                })
+            })
+            
         })
         .catch((error) => {
             console.log(`Error: ${error}`);
         })
 
-
-    main.addEventListener('click', function(e) {
-        // 檢查點擊的目標是否為 product_box 或是其子元素
-        const box = e.target.closest('.product_box');
-        
-        if (box) {
-            const productId = box.querySelector('.proID').innerText; 
-            const name = box.querySelector('.name_box').innerText;
-
-            // 2. 詢問使用者
-            const goBuy = confirm(`你選擇了「${name}」，要前往購買頁面嗎？`);
-
-            if (goBuy) {
-                window.location.href = `./buy.html?id=${productId}`;
-            }
-        }
-    });
 
     const logoutBtn = document.querySelector('.out');
 
@@ -107,10 +163,7 @@
         // 4. 跳轉回登入頁面
         window.location.replace('/'); 
     });
-    function goToUpdate(productId) {
-        // 跳轉到 updateProduct.html 並帶上 ID
-        window.location.href = `./updateProduct.html?id=${productId}`;
-    }
+
     </script>
 </body>
 </html>

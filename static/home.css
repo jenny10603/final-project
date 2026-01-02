@@ -62,35 +62,53 @@
     font-size: 19px;
     align-items: flex-start;
 }
-.update_btn{
+.buybox{
     position: absolute;
+    display: flex;
+    /* flex-direction: column; */
+    flex-wrap: wrap;
+    justify-content: start;
+    align-items: center;
+    border-radius: 5px;
+    padding: 0;
     bottom: -15px;
     right: -15px;
-    background-color: rgb(48, 63, 73);
+}
+.product_btn{
     border-radius: 5px;
-    border: 2px solid rgb(48, 63, 73);
+    margin: 0px;
 }
-.update_btn:hover{
-    color: rgb(48, 63, 73);
-    background-color: rgb(139, 171, 201);
+.delete_btn,.add,.sub{
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    font-weight: 600;
+    font-size: 40px;
+    display: flex;
+    align-items: center; /* 垂直置中 */
+    justify-content: center; /* 水平置中 */
+    
 }
-.delete_btn:hover{
-    color: rgb(48, 63, 73);
-    background-color: rgb(139, 171, 201);
+.sub{
+    padding: 0px 2px 5px 0px;
+}
+.add{
+    padding: 1px 1px 0px 0px;
 }
 .delete_btn{
-    height: 25px;
-    width: 25px;
     position: absolute;
     top: -8px;
     left: -15px;
     font-size: 20px;
-    text-align: center;
-    background-color: rgb(48, 63, 73);
-    color: rgb(216, 220, 223);
-    border-radius: 5px;
-    border: 2px solid rgb(48, 63, 73);
-    padding: 0;
+    padding: 2px 0px 0px 1px;
+}
+.product_btn:hover{
+    color: rgb(48, 63, 73);
+    background-color: rgb(139, 171, 201);
+}
+.update_btn{
+    bottom: -15px;
+    right: -15px;
 }
 .tab_big_box{
     position: absolute;
@@ -183,7 +201,7 @@
 .text_box{
     padding: 10px;
 }
-.product_btn{
+/* .product_btn{
     border: 8px solid rgb(48, 63, 73);
     background-color: rgb(48, 63, 73);
     color: rgb(139, 171, 201);
@@ -194,4 +212,4 @@
 .product_btn:hover{
     background-color: rgb(139, 171, 201);
     color: rgb(48, 63, 73);            
-}        
+}         */

@@ -4,16 +4,125 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+
+    <style>
+        .main{
+            width: 35%;
+            border: 5px solid rgb(48, 63, 73);
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.4);
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 100px;
+        }
+        .topbar{
+            width: calc(100% - 10px);
+            padding: 10px 10px;
+            color: rgb(213, 235, 243);
+            text-align: center;
+            background-color: rgb(48, 63, 73);
+            font-size: 30px;
+        }
+        .content{
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .box{
+            display: flex;
+            margin: 15px;
+            justify-content: flex-start;
+        }
+        .text{
+            width: 170px;
+            font-size: 26px;
+            margin-right: 15px;
+            text-align: center;
+        }
+        .inputbox{
+            width: 60%;
+        }
+        .code{
+            display: none;
+        }
+        .btnbox{
+            margin: auto;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .result{
+            font-size: 28px;
+            font-weight: 600;
+            margin: 10px auto;
+            margin-bottom: 30PX;
+        }
+        .hold{
+            border: solid 0.5px #ccc; 
+            opacity: 0.8;
+        }
+
+        .hovered{
+            background-color: #333;
+            border-color: white;
+            border-style: dashed;
+        }
+
+        .over{
+            border: 1px dashed gray;
+        }
+        .verification{
+            display: none;
+        }
+
+    </style>
 </head>
 <body>
-    <input type="text" name="name">
-    <input type="text" name="description">
-    <input type="text" name="price">
-    <input type="file" id="img" name="img">
-    <button class="btn">送出</button>
+    <div class="navbar">
+        <div class="leftnavbar">
+            <div class="logo navtext">supermarket</div>
+            <a href="./manager" class="navtext navlink">首頁</a>
+        </div>
+        <div class="rightnavbar">
+        </div>
+    </div>
+    <div class="main">
+        <div class="topbar">商品</div>
+        <div class="content">
+            <div class="box">
+                <div class="text">名稱</div>
+                <input type="text" name="name">
+            </div>
+            <div class="box">
+                <div class="text">介紹</div>
+                <input type="text" name="description">
+            </div>
+            <div class="box">
+                <div class="text">價格</div>
+                <input type="number" name="price">
+            </div>
+            <div class="box">
+                <div class="text">圖片</div>
+                <input type="file" id="img" name="img">
+            </div>
+            <div class="box btnbox">
+               <button class="btn">送出</button>
+            </div>
+        </div> 
+    </div>          
+
+    
+    
+    
+    
+    
     
 </body>
 <script>
+    
     let btn = document.querySelector(".btn");
     let nameInput = document.querySelector('input[name="name"]');
     let descriptionInput = document.querySelector('input[name="description"]');
