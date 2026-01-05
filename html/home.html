@@ -52,7 +52,7 @@
         }
 
         const main = document.querySelector('.main');
-        fetch( 'http://127.0.0.1:8000/getProducts',{
+        fetch( '--host 0.0.0.0/getProducts',{
             method: "GET",
             headers: headers
             //body: JSON.stringify(body)
@@ -119,7 +119,7 @@
                     };
                     
                     try {
-                        const res = await fetch('http://127.0.0.1:8000/buyProduct', {
+                        const res = await fetch('--host 0.0.0.0/buyProduct', {
                             method: "POST",
                             headers: headers,
                             body: JSON.stringify(body)

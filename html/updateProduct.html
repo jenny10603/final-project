@@ -110,7 +110,7 @@
         const token = sessionStorage.getItem('token');
 
         // 1. 載入原始資料
-        fetch('http://127.0.0.1:8000/getProducts', {
+        fetch('--host 0.0.0.0/getProducts', {
             headers: { "Authorization": `Bearer ${token}` }
         })
         .then(res => res.json())
@@ -133,7 +133,7 @@
                 image_url: document.getElementById('image_url').value
             };
 
-            const res = await fetch(`http://127.0.0.1:8000/updateProduct/${productId}`, {
+            const res = await fetch(`--host 0.0.0.0/updateProduct/${productId}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

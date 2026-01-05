@@ -157,7 +157,7 @@
             body.name = name.value;
             body.password = password.value;
             //console.log(JSON.stringify(body));
-            fetch( 'http://127.0.0.1:8000/login',{
+            fetch( '--host 0.0.0.0/login',{
                 method: "POST",
                 headers: headers,
                 body: JSON.stringify(body)
@@ -204,7 +204,7 @@
                 return;
             }
 
-            fetch('http://127.0.0.1:8000/register', {
+            fetch('--host 0.0.0.0/register', {
                 method: "POST",
                 headers: headers,
                 body: JSON.stringify(body)
@@ -235,7 +235,7 @@
 
         function loginWithGoogle() {
             // 直接跳轉到後端的 Google 登入路由
-            window.location.href = "http://127.0.0.1:8000/login/google";
+            window.location.href = "--host 0.0.0.0/login/google";
         }
 
         // 在頁面載入時檢查 URL 是否有帶 Token (從 Google 回跳時)

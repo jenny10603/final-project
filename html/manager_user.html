@@ -62,7 +62,7 @@
 
 
         // 1. 抓取會員清單
-        fetch('http://127.0.0.1:8000/getCustomers', {
+        fetch('--host 0.0.0.0/getCustomers', {
             headers: { "Authorization": `Bearer ${token}` }
         })
         .then(res => res.json())
@@ -91,7 +91,7 @@
         async function deleteUser(id) {
             if (!confirm("確定要刪除這位會員嗎？此動作無法復原！")) return;
 
-            const res = await fetch(`http://127.0.0.1:8000/deleteCustomer/${id}`, {
+            const res = await fetch(`--host 0.0.0.0/deleteCustomer/${id}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${token}` }
             });
