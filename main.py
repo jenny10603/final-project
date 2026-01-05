@@ -185,7 +185,7 @@ def login(data: LoginData):
 
 @app.get("/login/google")
 async def login_google(request: Request):
-    redirect_uri = "http://0.0.0.0:8000/auth/google/callback"
+    redirect_uri = "http://127.0.0.1:8000/auth/google/callback"
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 @app.get("/auth/google/callback")

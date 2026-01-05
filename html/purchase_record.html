@@ -63,7 +63,7 @@
         const formatTime = (ts) => new Date(ts * 1000).toLocaleString();
 
         // 抓取紀錄
-        fetch('http://0.0.0.0:8000/getPurchaseHistory', {
+        fetch('http://127.0.0.1:8000/getPurchaseHistory', {
             method: "GET",
             headers: { "Authorization": `Bearer ${token}` }
         })

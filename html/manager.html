@@ -74,7 +74,7 @@ async function deleteItem(productId) {
     const token = sessionStorage.getItem('token');
     
     try {
-        const response = await fetch(`http://0.0.0.0:8000/deleteProduct/${productId}`, {
+        const response = await fetch(`http://127.0.0.1:8000/deleteProduct/${productId}`, {
             method: "DELETE",
             headers: {
                 "Authorization": `Bearer ${token}`,

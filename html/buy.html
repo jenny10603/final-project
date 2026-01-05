@@ -23,7 +23,7 @@
         "Authorization": `Bearer ${token}`,
     }
 
-    fetch('http://0.0.0.0:8000/getProducts', {
+    fetch('http://127.0.0.1:8000/getProducts', {
         method: "GET",
         headers: headers
     })
@@ -62,7 +62,7 @@
                 };
 
                 try {
-                    const res = await fetch('http://0.0.0.0:8000/buyProduct', {
+                    const res = await fetch('http://127.0.0.1:8000/buyProduct', {
                         method: "POST",
                         headers: headers,
                         body: JSON.stringify(body)
